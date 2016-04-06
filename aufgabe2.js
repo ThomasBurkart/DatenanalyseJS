@@ -17,6 +17,36 @@ var statsExemplar = new HashMap();
 var statsExemplarSum = new HashMap();
 var hashCompare = new HashMap();
 
+var exemplar1 = {
+    ppn: "123",
+    number: 123,
+    signatur: "abc",
+    barcode: "xyz",
+    sigel: "aaa"
+};
+
+var exemplar2 = {
+    ppn: "123",
+    number: 123,
+    signatur: "abc",
+    barcode: "xyz",
+    sigel: "aaa"
+};
+
+console.log(exemplar1 +"=="+ exemplar2);
+console.log("Obj: " + (exemplar1 == exemplar2));
+
+var json1 = JSON.stringify(exemplar1);
+var json2 = JSON.stringify(exemplar2);
+
+console.log(json1.toString() +"=="+ json2.toString());
+console.log("JSON: " + (json1 == json2));
+
+var md5a = md5(json1);
+var md5b = md5(json2);
+console.log(md5a +"=="+ md5b);
+console.log("MD5: " + (md5a.toString() == md5b.toString()));
+
 function setStatsFor(map, value) {
     if (map.has(value)) {
         map.set(value, (map.get(value) + 1))
@@ -58,7 +88,7 @@ fs.readFile(inputFile, 'utf8', function (err, data) {
                 barcode: barcode,
                 sigel: sigel
             };
-
+            
             setStatisicsFor(exemplar);
 
             datarow.push(exemplar);
@@ -144,15 +174,18 @@ function statisticOutput() {
     console.log("---");
 
     var hashCompareTotal = 0;
+    var countIdenticalLines = 0;
     hashCompare.forEach(function(value, key){
         if (value > 1) {
-            console.log("Identische Zeile gefunden.");
-
+            countIdenticalLines += 1;
         }
-        hashCompareTotal += value;
+        hashCompareTotal += 1;
     });
     console.log("Hash Compare Total: " + hashCompareTotal + " von " + datarow.length + " -> " + (hashCompareTotal==datarow.length));
-    if ((hashCompareTotal==datarow.length)) { console.log("Keine komplett identischen Exemplare in Daten."); }
+    if ((hashCompareTotal==datarow.length)) { console.log("Keine komplett identischen Exemplare in Daten."); } else {
+
+        console.log(countIdenticalLines + " identische Zeilen gefunden.");
+    }
 }
 
 // Statistik setzen
@@ -163,8 +196,8 @@ function setStatisicsFor(exemplar) {
     setStatsFor(statsPpn, exemplar.ppn);
     setStatsFor(statsBarcode, exemplar.barcode);
     setStatsFor(statsExemplar, exemplar.number);
-
-    setStatsFor(hashCompare, md5(JSON.stringify(exemplar)));
+    var hash = md5(JSON.stringify(exemplar));
+    setStatsFor(hashCompare, hash.toString());
 
 }
 
